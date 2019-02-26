@@ -10,19 +10,20 @@ import 'Repository.dart';
 
 class CachingRepository extends Repository {
   final int pageSize;
-  final Cache<Product> cache;
+  //final Cache<Product> cache;
+  final Cache<News> cache;
   final Api api = Api();
 
   final pagesInProgress = Set<int>();
   final pagesCompleted = Set<int>();
   final completers = HashMap<int, Set<Completer>>();
 
-  int totalProducts;
+  int totalNews;
 
   CachingRepository({this.pageSize, this.cache});
 
   @override
-  Future<Product> getProduct(int index) {
+  Future<News> getProduct(int index) {
     final pageIndex = pageIndexFromProductIndex(index);
 
     if (pagesCompleted.contains(pageIndex)) {
@@ -30,15 +31,15 @@ class CachingRepository extends Repository {
     } else {
       if (!pagesInProgress.contains(pageIndex)) {
         pagesInProgress.add(pageIndex);
-        var future = api.getProducts(pageIndex, pageSize);
+        var future = api.getRecentNews();
         future.asStream().listen(onData);
       }
       return buildFuture(index);
     }
   }
 
-  Future<Product> buildFuture(int index) {
-    var completer = Completer<Product>();
+  Future<News> buildFuture(int index) {
+    var completer = Completer<News>();
 
     if (completers[index] == null) {
       completers[index] = Set<Completer>();
@@ -50,23 +51,23 @@ class CachingRepository extends Repository {
     return completer.future;
   }
 
-  void onData(Products products) {
-    if (products != null) {
-      totalProducts = products.totalProducts;
-      pagesInProgress.remove(products.pageNumber);
-      pagesCompleted.add(products.pageNumber);
+  void onData(NewsCategory newsCategories) {
+    if (newsCategories != null) {
+      totalNews = newsCategories.totalNews;
+      pagesInProgress.remove(newsCategories.pageNumber);
+      pagesCompleted.add(newsCategories.pageNumber);
 
       for (int i = 0; i < pageSize; i++) {
-        int index = products.pageSize * products.pageNumber + i;
-        Product product = products.products[i];
+        int index = newsCategories.pagSize * newsCategories.pageNumber + i;
+        News news = newsCategories.news[i];
 
-        cache.put(index, product);
+        cache.put(index, news);
         Set<Completer> comps = completers[index];
 
         if (comps != null) {
           for (var completer in comps) {
             log("*** Completed future for ${index}");
-            completer.complete(product);
+            completer.complete(news);
           }
           comps.clear();
         }

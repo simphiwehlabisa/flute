@@ -37,5 +37,5 @@ class StringToken extends Token {
 
   StringToken({this.startIndex, this.html}) : super(type: TokenType.TEXT) {
     html.indexOf("<");
-  };
+  }
 }

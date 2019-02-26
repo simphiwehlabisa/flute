@@ -35,11 +35,11 @@ class Flute extends StatefulWidget {
 class FluteState extends State<Flute> {
   final _biggerFont = const TextStyle(fontSize: 18.0);
 
-  static final Cache _cache = MemCache<Product>();
+  static final Cache _cache = MemCache<News>();
 
   static final _repo = CachingRepository(pageSize: 10, cache: _cache);
 
-  void onProduct(Product product) {
+  void onProduct(News news) {
     setState(() {});
   }
 
@@ -50,7 +50,7 @@ class FluteState extends State<Flute> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Wallaby'),
+        title: Text('caching'),
         actions: <Widget>[
           new IconButton(
               icon: Icon(Icons.favorite_border), onPressed: _pushSaved)
@@ -72,13 +72,13 @@ class FluteState extends State<Flute> {
     );
   }
 
-  Widget _buildProductRow(Future<Product> productFuture) {
+  Widget _buildProductRow(Future<News> productFuture) {
     if (productFuture == null) {
       return Text("error loading item");
     } else {
-      return new FutureBuilder<Product>(
+      return new FutureBuilder<News>(
         future: productFuture,
-        builder: (BuildContext context, AsyncSnapshot<Product> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<News> snapshot) {
           if (snapshot.hasData) {
             return _buildProductCard(snapshot.data);
           } else {
@@ -89,7 +89,7 @@ class FluteState extends State<Flute> {
     }
   }
 
-  void showProductDetails(BuildContext context, Product product) {
+  void showProductDetails(BuildContext context, News product) {
     Navigator.push(
         context,
         MaterialPageRoute<void>(
@@ -103,20 +103,20 @@ class FluteState extends State<Flute> {
         ));
   }
 
-  Widget _buildProductDetailsPage(Product product) {
+  Widget _buildProductDetailsPage(News product) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(product.productName),
+        title: Text(product.title),
       ),
       body: Container(
         margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
         child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: <Widget>[
-              Image.network(product.productImage),
+              Image.network(product.thumbnail),
               Flexible(
                 child: Text(
-                  product.price,
+                  product.content,
                   textAlign: TextAlign.right,
                   maxLines: 3,
                   style: TextStyle(
@@ -130,7 +130,7 @@ class FluteState extends State<Flute> {
                 child: SingleChildScrollView(
                   child: RichText(
                     text: TextSpan(
-                      text: product.longDescription,
+                      text: product.content,
                       style: TextStyle(color: Colors.black87, fontSize: 14.0),
                     ),
                   ),
@@ -141,7 +141,7 @@ class FluteState extends State<Flute> {
     );
   }
 
-  Widget _buildProductCard(Product product) {
+  Widget _buildProductCard(News product) {
     return GestureDetector(
       onTap: () {
         showProductDetails(context, product);
@@ -151,13 +151,13 @@ class FluteState extends State<Flute> {
           height: 64.0,
           width: 64.0,
           margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-          child: Image.network(product.productImage),
+          child: Image.network(product.thumbnail),
         ),
         Expanded(
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Flexible(
               child: Text(
-                product.productName,
+                product.title,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -168,7 +168,7 @@ class FluteState extends State<Flute> {
         new Container(
           margin: const EdgeInsets.only(left: 8.0),
           child: Text(
-            product.price,
+            product.content,
             textAlign: TextAlign.end,
           ),
         ),
@@ -176,7 +176,7 @@ class FluteState extends State<Flute> {
     );
   }
 
-  var _saved = Set<Product>();
+  var _saved = Set<News>();
 
   void _pushSaved() {
     Navigator.of(context).push(
@@ -186,7 +186,7 @@ class FluteState extends State<Flute> {
             (product) {
               return ListTile(
                 title: Text(
-                  product.productName,
+                  product.title,
                   style: _biggerFont,
                 ),
               );

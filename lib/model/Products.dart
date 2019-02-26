@@ -14,3 +14,29 @@ class Products {
         pageNumber = map['pageNumber'],
         pageSize = map['pageSize'];
 }
+class NewsCategory{
+  final String name;
+  final String id;
+  final int totalNews;
+  final int pageNumber;
+  final int pagSize;
+
+  final List<News> news;
+
+  const NewsCategory({
+    this.name,
+    this.pageNumber,
+    this.id,
+    this.pagSize,
+    this.totalNews,
+    this.news
+  });
+
+  NewsCategory.fromMap(Map<String, dynamic> map) :
+  name = map['name'],
+  pageNumber = 1,
+  pagSize = 1,
+  totalNews = 4,
+  id = map['id'],
+  news = new List<News>.from(map['news'].map((i) => new News.fromMap(i)));
+}
